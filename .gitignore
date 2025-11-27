@@ -1,0 +1,6 @@
+Data
+*.log
+*.txt
+*.csv
+*.pcap
+*_copy.py
