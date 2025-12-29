@@ -1,7 +1,8 @@
-from _t1ha0_module import ffi, lib
 from scapy.all import *
 import os
 import argparse
+sys.path.append('/home/kali/Desktop')
+from t1ha0 import ffi, lib
 
 def frame_processing(frame):
 
