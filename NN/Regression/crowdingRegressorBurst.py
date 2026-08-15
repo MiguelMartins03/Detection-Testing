@@ -1,12 +1,12 @@
 import joblib
 import pandas as pd
 import numpy as np
-import sqlite3
-import sys
-sys.path.append('/home/kali/Desktop')
-from sensorFunctions import publish_mqtt_message
 
 INPUT_CSV = '/home/kali/Detection_Testing/NN/Regression/sniffedData.csv'
+
+USE_HP_FILTER = False
+HISTORY_FILE = '/home/kali/Detection_Testing/NN/Regression/prediction_history.txt'
+HP_LAMBDA = 1000 
 
 model = joblib.load('wifi_crowd_regressor.pkl')
 n_devices = 0
@@ -60,9 +60,37 @@ try:
             'Bursts_Per_Fingerprint': bursts_per_fingerprint
         }])
         
-        # Predict
         raw_prediction = model.predict(X_live)[0]
-        n_devices = max(0, int(np.round(raw_prediction)))
+
+        if USE_HP_FILTER:
+            # 1. Save current raw prediction to history
+            with open(HISTORY_FILE, 'a') as f:
+                f.write(f"{raw_prediction}\n")
+            
+            # 2. Load the entire history
+            history = np.loadtxt(HISTORY_FILE)
+            
+            # 3. Ensure history is an array (fixes bug if file only has 1 line)
+            if history.ndim == 0:
+                history = np.array([history])
+                
+            # 4. HP Filter requires at least 4 data points to draw a proper curve
+            if len(history) >= 4:
+                import statsmodels.api as sm
+                
+                # Apply the filter. It returns the 'cycle' (noise) and 'trend' (smoothed line)
+                cycle, trend = sm.tsa.filters.hpfilter(history, lamb=HP_LAMBDA)
+                
+                # We want the trend value of the CURRENT (latest) interval
+                smoothed_prediction = trend[-1]
+                n_devices = max(0, int(np.round(smoothed_prediction)))
+            else:
+                # Not enough data yet, just use the raw prediction
+                n_devices = max(0, int(np.round(raw_prediction)))
+                
+        else:
+            # HP Filter is disabled. Just use raw prediction.
+            n_devices = max(0, int(np.round(raw_prediction)))
 
 except pd.errors.EmptyDataError:
     n_devices = 0

@@ -1,6 +1,7 @@
 from scapy.all import PcapReader, Dot11Elt
 import subprocess
 import pandas as pd
+import os
 import sys
 sys.path.append('/home/kali/Desktop')
 from t1ha0 import ffi, lib
@@ -55,6 +56,11 @@ def frame_processing(pkt):
     }
 
 def replay_pcap_with_timing(pcap_file):
+
+    history_file = '/home/kali/Detection_Testing/NN/Regression/prediction_history.txt'
+    if os.path.exists(history_file):
+        os.remove(history_file)
+
     interval_buckets = {}
     max_bucket_index = 0
 
@@ -82,11 +88,15 @@ def replay_pcap_with_timing(pcap_file):
     n_pkts = [len(value) for _, value in sorted(interval_buckets.items())]
     print(*n_pkts)
 
-    for _, pkt_list in sorted(interval_buckets.items()):
+    for i, pkt_list in sorted(interval_buckets.items()):
         rows = []
-
+        
         for pkt in pkt_list:
             rows.append(frame_processing(pkt))
+
+        # for bucket_index in range(max(i - 3, 0), i + 1):
+        #     for pkt in interval_buckets[bucket_index]:
+        #         rows.append(frame_processing(pkt))
         
         df = pd.DataFrame(rows)
 
@@ -96,4 +106,4 @@ def replay_pcap_with_timing(pcap_file):
 
     print("Finished replaying packets.")
 
-replay_pcap_with_timing("/home/kali/Detection_Testing/Scenarios/300_uniform_dist_30.pcap")
+replay_pcap_with_timing("/home/kali/Detection_Testing/Scenarios/uniform_validation_dist_30.pcap")

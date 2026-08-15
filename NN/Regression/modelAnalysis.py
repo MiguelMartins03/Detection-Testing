@@ -2,17 +2,17 @@ import pandas as pd
 import joblib
 from sklearn.inspection import permutation_importance
 
-INPUT_DATASET = 'regression_dataset_fing_20-20_300.csv'
-MODEL_FILENAME = 'wifi_crowd_regressor.pkl'
+INPUT_DATASET = 'regression_dataset_fing_20-20_burst_300.csv'
+MODEL_FILENAME = 'wifi_crowd_regressor_burst.pkl'
 
 # 1. Load data and model
 print("Loading data and model...")
 df = pd.read_csv(INPUT_DATASET)
 # X = df[['Total_Packets', 'Unique_MACs', 'Unique_Fingerprints', 'Packets_Per_Fingerprint']]
-# X = df[['Total_Packets', 'Total_Bursts', 'Unique_MACs', 'Unique_Fingerprints', 'Packets_Per_Fingerprint', 'Bursts_Per_Fingerprint']]
+X = df[['Total_Packets', 'Total_Bursts', 'Unique_MACs', 'Unique_Fingerprints', 'Packets_Per_Fingerprint', 'Bursts_Per_Fingerprint']]
 # X = df[['Unique_Fingerprints', 'Packets_Per_Fingerprint', 'MACs_Per_Fingerprint']]
 # X = df[['Unique_Fingerprints', 'Packets_Per_Fingerprint', 'Bursts_Per_Fingerprint', 'MACs_Per_Fingerprint']]
-X = df[['Total_Packets']]
+# X = df[['Total_Packets']]
 y = df['Target_Device_Count']
 
 pipeline = joblib.load(MODEL_FILENAME)

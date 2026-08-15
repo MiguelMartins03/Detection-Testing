@@ -5,7 +5,7 @@ import sys
 from time import sleep
 from sklearn.metrics import mean_squared_error
 
-INPUT_CSV = 'regression_dataset_fing_20-20_burst_300.csv'
+INPUT_CSV = 'regression_dataset_15min_300.csv'
 MODEL_PATH = 'wifi_crowd_regressor.pkl'
 
 try:
@@ -19,11 +19,11 @@ try:
     df = pd.read_csv(INPUT_CSV)
     
     if not df.empty:
-        # X = df[['Total_Packets', 'Unique_MACs', 'Unique_Fingerprints', 'Packets_Per_Fingerprint']]
+        X = df[['Total_Packets', 'Unique_MACs', 'Unique_Fingerprints', 'Packets_Per_Fingerprint']]
         # X = df[['Total_Packets', 'Total_Bursts', 'Unique_MACs', 'Unique_Fingerprints', 'Packets_Per_Fingerprint', 'Bursts_Per_Fingerprint']]
         # X = df[['Unique_Fingerprints', 'Packets_Per_Fingerprint', 'MACs_Per_Fingerprint']]
         # X = df[['Unique_Fingerprints', 'Packets_Per_Fingerprint', 'Bursts_Per_Fingerprint', 'MACs_Per_Fingerprint']]
-        X = df[['Total_Packets', 'Total_Bursts', 'Unique_Fingerprints']]
+        # X = df[['Total_Packets']]
         y_true = df['Target_Device_Count']
         raw_predictions = model.predict(X)
         y_pred = np.maximum(0, np.round(raw_predictions)).astype(int)
