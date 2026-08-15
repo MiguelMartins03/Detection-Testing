@@ -1,8 +1,8 @@
 from scapy.all import PcapReader, Dot11Elt
 import subprocess
 import pandas as pd
+import os
 import sys
-sys.path.append('/home/kali/Desktop')
 from t1ha0 import ffi, lib
 
 def frame_processing(pkt):
@@ -50,6 +50,10 @@ def frame_processing(pkt):
     }
 
 def replay_pcap_with_timing(pcap_file):
+    history_file = 'tcn_feature_history.csv'
+    if os.path.exists(history_file):
+        os.remove(history_file)
+
     interval_buckets = {}
     max_bucket_index = 0
 
@@ -87,8 +91,8 @@ def replay_pcap_with_timing(pcap_file):
 
         df.to_csv("sniffedData.csv", index=False)
 
-        subprocess.run(["sudo", "/usr/bin/python3", "/home/kali/Detection_Testing/CNN/crowdingRegressorBurst.py"])
+        subprocess.run([sys.executable, "crowdingRegressor.py"])
 
     print("Finished replaying packets.")
 
-replay_pcap_with_timing("/home/kali/Detection_Testing/Scenarios/300_uniform_dist_30.pcap")
+replay_pcap_with_timing("C:\\Users\\migue\\Desktop\\ML\\300_bimodal_dist_30.pcap")
